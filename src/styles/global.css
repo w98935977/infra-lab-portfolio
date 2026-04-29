@@ -110,6 +110,10 @@ html[data-language="zh"] [data-lang-content="en"] {
   color: #242424;
 }
 
+.article-content p + p {
+  margin-top: 1.85rem;
+}
+
 .article-content ul {
   padding-left: 1.35rem;
   list-style: disc;
