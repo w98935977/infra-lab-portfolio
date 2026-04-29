@@ -34,7 +34,9 @@ code {
 }
 
 .mermaid {
-  width: 100%;
+  display: flex;
+  justify-content: center;
+  width: fit-content;
   max-width: 100%;
   border: 0;
   background: transparent;
@@ -57,6 +59,7 @@ code {
   width: 100%;
   max-width: 680px;
   height: auto;
+  margin-inline: auto;
 }
 
 .article-content {

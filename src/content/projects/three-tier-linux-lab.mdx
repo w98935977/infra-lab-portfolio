@@ -34,6 +34,7 @@ The application was originally containerized with Docker Compose. It was then mi
 <Mermaid chart={`flowchart TD
   client["Client / Host"]
   proxy["reverse-proxy server<br/>nginx :80"]
+  pass["proxy_pass<br/>http://app-server:8000"]
   service["app-server<br/>systemd lab-app.service"]
   gunicorn["gunicorn :8000"]
   flask["Flask app"]
@@ -41,7 +42,8 @@ The application was originally containerized with Docker Compose. It was then mi
   schema["labdb / labuser<br/>notes table"]
 
   client --> proxy
-  proxy -->|"proxy_pass<br/>http://app-server:8000"| service
+  proxy --> pass
+  pass --> service
   service --> gunicorn
   gunicorn --> flask
   flask --> db
