@@ -115,6 +115,15 @@ html[data-language="zh"] [data-lang-content="en"] {
   list-style: disc;
 }
 
+.article-content li + li {
+  margin-top: 0.35rem;
+}
+
+.article-content ul + p,
+.article-content ol + p {
+  margin-top: 1.85rem;
+}
+
 .article-content table {
   display: block;
   width: 100%;
