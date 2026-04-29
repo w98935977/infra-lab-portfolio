@@ -6,7 +6,7 @@ interface Props {
   description?: string;
 }
 
-const { title, description = "Infra / Linux / DevOps lab portfolio." } = Astro.props;
+const { title, description = "Infrastructure and Linux systems lab portfolio." } = Astro.props;
 const navItems = [
   { href: "/", label: "Home" },
   { href: "/projects", label: "Projects" }
@@ -22,12 +22,12 @@ const navItems = [
     <title>{title}</title>
   </head>
   <body>
-    <header class="border-b border-line bg-white/90 backdrop-blur">
+    <header class="border-b border-line bg-white/95 backdrop-blur">
       <nav class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-        <a href="/" class="font-mono text-sm font-semibold text-slate-950">infra-lab</a>
-        <div class="flex gap-2 text-sm text-slate-600">
+        <a href="/" class="font-mono text-sm font-semibold text-ink">infra-lab</a>
+        <div class="flex gap-2 text-sm text-neutral-600">
           {navItems.map((item) => (
-            <a class="rounded px-3 py-2 hover:bg-slate-100 hover:text-slate-950" href={item.href}>
+            <a class="rounded px-3 py-2 hover:bg-neutral-100 hover:text-ink" href={item.href}>
               {item.label}
             </a>
           ))}
@@ -37,7 +37,7 @@ const navItems = [
     <main class="mx-auto max-w-6xl px-5 py-10 md:py-14">
       <slot />
     </main>
-    <footer class="border-t border-line bg-white px-5 py-8 text-center text-sm text-slate-500">
+    <footer class="border-t border-line bg-white px-5 py-8 text-center text-sm text-neutral-500">
       Production-like lab notes for infrastructure engineering interviews.
     </footer>
   </body>

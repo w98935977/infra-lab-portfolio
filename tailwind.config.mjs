@@ -4,10 +4,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: "#111827",
+        ink: "#242424",
         panel: "#ffffff",
-        line: "#e5e7eb",
-        signal: "#2563eb"
+        line: "#f2f2f2",
+        signal: "#1a8917"
       },
       fontFamily: {
         sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],

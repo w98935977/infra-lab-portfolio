@@ -7,14 +7,14 @@
 }
 
 html {
-  background: #f8fafc;
+  background: #ffffff;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background: #f8fafc;
-  color: #111827;
+  background: #ffffff;
+  color: #242424;
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -23,7 +23,7 @@ a {
 }
 
 pre {
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e6e6e6;
   border-radius: 8px;
   padding: 1.1rem;
   overflow-x: auto;
@@ -34,8 +34,8 @@ code {
 }
 
 .mermaid {
-  min-width: 980px;
   width: 100%;
+  max-width: 100%;
   border: 0;
   background: transparent;
   padding: 0;
@@ -44,25 +44,23 @@ code {
 .diagram-wide {
   display: flex;
   justify-content: center;
-  width: min(1120px, calc(100vw - 2rem));
-  margin: 2.5rem 50% 3rem;
-  transform: translateX(-50%);
+  width: 100%;
+  margin: 2.25rem 0 2.75rem;
   overflow-x: auto;
-  border: 1px solid #d1d5db;
+  border: 1px solid #e6e6e6;
   border-radius: 8px;
   background: #ffffff;
-  padding: 1.5rem;
-  box-shadow: 0 16px 40px rgb(15 23 42 / 0.08);
+  padding: 1rem;
 }
 
 .diagram-wide svg {
   width: 100%;
-  max-width: 1040px;
-  min-height: 420px;
+  max-width: 680px;
+  height: auto;
 }
 
 .article-content {
-  color: #374151;
+  color: #242424;
   font-size: 1.0625rem;
   line-height: 1.9;
 }
@@ -73,7 +71,7 @@ code {
 
 .article-content h2 {
   margin-top: 3.5rem;
-  color: #111827;
+  color: #242424;
   font-size: 1.85rem;
   font-weight: 700;
   line-height: 1.25;
@@ -85,7 +83,7 @@ code {
 
 .article-content p,
 .article-content li {
-  color: #374151;
+  color: #242424;
 }
 
 .article-content ul {
@@ -104,22 +102,22 @@ code {
 
 .article-content th,
 .article-content td {
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e6e6e6;
   padding: 0.85rem 1rem;
   vertical-align: top;
 }
 
 .article-content th {
-  color: #111827;
+  color: #242424;
   font-weight: 700;
   text-align: left;
-  background: #f1f5f9;
+  background: #fafafa;
 }
 
 .article-content code:not(pre code) {
   border-radius: 4px;
-  background: #eef2ff;
-  color: #1e3a8a;
+  background: #f2f2f2;
+  color: #242424;
   padding: 0.12rem 0.28rem;
   font-size: 0.9em;
 }
@@ -127,11 +125,10 @@ code {
 .article-content pre {
   margin-top: 1.2rem;
   background: #ffffff !important;
-  box-shadow: 0 10px 30px rgb(15 23 42 / 0.06);
 }
 
 .article-content a {
-  color: #2563eb;
+  color: #1a8917;
   text-decoration: underline;
   text-underline-offset: 3px;
 }

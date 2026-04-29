@@ -17,13 +17,13 @@ const { Content } = await render(project);
 <BaseLayout title={`${project.data.title} | Infra Lab Portfolio`} description={project.data.summary}>
   <article class="mx-auto max-w-3xl">
     <header class="border-b border-line pb-10">
-      <a class="text-sm font-semibold text-blue-700 hover:text-blue-900" href="/projects">Back to projects</a>
-      <p class="mt-8 font-mono text-sm uppercase tracking-wider text-slate-500">{project.data.status}</p>
-      <h1 class="mt-4 text-4xl font-semibold leading-tight text-slate-950 md:text-6xl">{project.data.title}</h1>
-      <p class="mt-6 text-xl leading-9 text-slate-700">{project.data.subtitle}</p>
+      <a class="text-sm font-semibold text-signal hover:text-green-700" href="/projects">Back to projects</a>
+      <p class="mt-8 font-mono text-sm uppercase tracking-wider text-neutral-500">{project.data.status}</p>
+      <h1 class="mt-4 text-4xl font-semibold leading-tight text-ink md:text-6xl">{project.data.title}</h1>
+      <p class="mt-6 text-xl leading-9 text-neutral-700">{project.data.subtitle}</p>
       <div class="mt-6 flex flex-wrap gap-2">
         {project.data.stack.map((item: string) => (
-          <span class="rounded bg-slate-100 px-2.5 py-1 text-xs text-slate-700">{item}</span>
+          <span class="rounded bg-neutral-100 px-2.5 py-1 text-xs text-neutral-700">{item}</span>
         ))}
       </div>
     </header>
