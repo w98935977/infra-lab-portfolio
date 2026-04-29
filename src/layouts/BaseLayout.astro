@@ -1,0 +1,44 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Infra / Linux / DevOps lab portfolio." } = Astro.props;
+const navItems = [
+  { href: "/", label: "Home" },
+  { href: "/projects", label: "Projects" }
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="border-b border-line/70 bg-ink/70 backdrop-blur">
+      <nav class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+        <a href="/" class="font-mono text-sm font-semibold text-slate-100">infra-lab</a>
+        <div class="flex gap-2 text-sm text-slate-300">
+          {navItems.map((item) => (
+            <a class="rounded px-3 py-2 hover:bg-panel hover:text-white" href={item.href}>
+              {item.label}
+            </a>
+          ))}
+        </div>
+      </nav>
+    </header>
+    <main class="mx-auto max-w-6xl px-5 py-10 md:py-14">
+      <slot />
+    </main>
+    <footer class="border-t border-line/70 px-5 py-8 text-center text-sm text-slate-500">
+      Production-like lab notes for infrastructure engineering interviews.
+    </footer>
+  </body>
+</html>

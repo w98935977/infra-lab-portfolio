@@ -1,0 +1,222 @@
+---
+title: "Production-like Three-Tier Linux Lab"
+subtitle: "Reverse Proxy + systemd-managed Gunicorn App + PostgreSQL with Health Checks and Backup/Restore Validation"
+summary: "A Linux infrastructure lab that migrates a containerized Flask/PostgreSQL app into a VM-style service model with nginx, systemd, Gunicorn, PostgreSQL access control, health checks, and restore validation."
+stack:
+  - nginx
+  - systemd
+  - Gunicorn
+  - Flask
+  - PostgreSQL 16
+  - Linux
+  - Mermaid
+status: "Case study"
+order: 1
+---
+
+import Mermaid from "@components/Mermaid.astro";
+
+## Overview
+
+This lab documents a production-like three-tier Linux deployment:
+
+- A reverse-proxy server accepts HTTP traffic on port 80 with nginx.
+- An app-server runs a Flask application through Gunicorn.
+- systemd manages `lab-app.service` as a normal Linux service.
+- The app connects to PostgreSQL 16 on a separate db-server.
+- Health checks verify process liveness, service readiness, and database access.
+- Backup and restore validation prove the database can be recovered and queried.
+
+The application was originally containerized with Docker Compose. It was then migrated to a systemd-managed Gunicorn deployment to practice Linux service lifecycle, process ownership, environment management, and cross-host database access.
+
+## Architecture
+
+<Mermaid chart={`flowchart LR
+  client["Client / Host"]
+  proxy["reverse-proxy server<br/>nginx :80"]
+  service["app-server<br/>systemd lab-app.service"]
+  gunicorn["gunicorn :8000"]
+  flask["Flask app"]
+  db["db-server<br/>PostgreSQL 16"]
+  schema["labdb / labuser<br/>notes table"]
+
+  client --> proxy
+  proxy -->|"proxy_pass http://app-server:8000"| service
+  service --> gunicorn
+  gunicorn --> flask
+  flask --> db
+  db --> schema
+`} />
+
+## Service Model
+
+The app is managed by systemd instead of Docker Compose. That makes the deployment closer to the Linux service operations normally used on VMs or bare-metal hosts.
+
+Key boundaries:
+
+- `lab-app.service` owns the process lifecycle.
+- `appuser` is the restricted Linux account for the application.
+- `/etc/lab-app.env` stores runtime configuration.
+- `labuser` is the PostgreSQL role used by the app.
+- `pg_hba.conf` controls database access by source IP, database, user, and authentication method.
+
+## Important Endpoints
+
+| Endpoint | Purpose |
+| --- | --- |
+| `/health` | Confirms the app process is alive. |
+| `/ready` | Confirms the app and database dependency are ready. |
+| `/db` | Validates PostgreSQL connectivity and returns the database version. |
+| `/notes` | Reads real rows from the `notes` table. |
+
+## systemd Unit
+
+The main correction during migration was switching from directly executing `python app.py` to starting the Flask app with Gunicorn.
+
+```ini
+[Unit]
+Description=Lab Flask app served by Gunicorn
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=appuser
+Group=appuser
+WorkingDirectory=/opt/lab-app
+EnvironmentFile=/etc/lab-app.env
+ExecStart=/opt/lab-app/venv/bin/gunicorn --bind 0.0.0.0:8000 app:app
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Useful service commands:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now lab-app.service
+sudo systemctl status lab-app.service
+sudo journalctl -u lab-app.service -n 80 --no-pager
+```
+
+## nginx Reverse Proxy
+
+The reverse proxy exposes port 80 and forwards application traffic to the app-server on port 8000.
+
+```nginx
+server {
+    listen 80;
+    server_name _;
+
+    access_log /var/log/nginx/lab-app.access.log;
+    error_log /var/log/nginx/lab-app.error.log;
+
+    location / {
+        proxy_pass http://app-server:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+Validation commands:
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+curl -i http://reverse-proxy/health
+curl -i http://reverse-proxy/ready
+curl -i http://reverse-proxy/db
+curl -i http://reverse-proxy/notes
+```
+
+## PostgreSQL Access Control
+
+The app uses a dedicated database role and database instead of connecting as a superuser.
+
+```sql
+CREATE ROLE labuser LOGIN PASSWORD 'replace-with-secret';
+CREATE DATABASE labdb OWNER labuser;
+\c labdb
+CREATE TABLE notes (
+    id bigserial PRIMARY KEY,
+    body text NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE notes OWNER TO labuser;
+GRANT ALL PRIVILEGES ON TABLE notes TO labuser;
+```
+
+Example `pg_hba.conf` entry:
+
+```text
+# TYPE  DATABASE  USER     ADDRESS          METHOD
+host    labdb     labuser  10.10.20.11/32   scram-sha-256
+```
+
+After editing PostgreSQL access rules:
+
+```bash
+sudo systemctl reload postgresql
+psql "host=db-server dbname=labdb user=labuser password=replace-with-secret" -c "select version();"
+```
+
+## Runtime Environment
+
+The app reads connection settings from `/etc/lab-app.env`. The file should be readable by root and the service process, and it should not be committed to git.
+
+```bash
+FLASK_ENV=production
+DB_HOST=db-server
+DB_PORT=5432
+DB_NAME=labdb
+DB_USER=labuser
+DB_PASSWORD=replace-with-secret
+```
+
+## Backup and Restore Validation
+
+The lab treats backup as incomplete until restore is tested and the application can query restored data.
+
+```bash
+pg_dump -h db-server -U labuser -d labdb -Fc -f labdb.dump
+createdb -h db-server -U labuser labdb_restore
+pg_restore -h db-server -U labuser -d labdb_restore labdb.dump
+psql -h db-server -U labuser -d labdb_restore -c "select count(*) from notes;"
+```
+
+## Troubleshooting Timeline
+
+| Symptom | Root cause | Resolution |
+| --- | --- | --- |
+| `Unit lab-app.service could not be found` | Unit file was not installed in the systemd search path or daemon cache was stale. | Placed the unit under `/etc/systemd/system/` and ran `systemctl daemon-reload`. |
+| Service failed because env file was missing | `/etc/lab-app.env` did not exist on the app-server. | Created the env file with database connection settings and restricted permissions. |
+| `app.py` exited successfully | The script defined the Flask app but did not start a production web server directly. | Changed `ExecStart` from `python app.py` to `gunicorn app:app`. |
+| PostgreSQL rejected the connection | `pg_hba.conf` did not permit the app-server source IP, database, and user. | Added a specific `host labdb labuser ... scram-sha-256` rule and reloaded PostgreSQL. |
+| Database or role missing | The app expected `labdb` and `labuser`, but PostgreSQL did not have them yet. | Created the role and database explicitly. |
+| Notes query failed | Table ownership or grants did not allow `labuser` to read the table. | Fixed table ownership and privileges for `notes`. |
+| Reverse-proxy returned errors | nginx config needed validation against the upstream app-server and port. | Tested `nginx -t`, reloaded nginx, and validated through `/health`, `/ready`, `/db`, and `/notes`. |
+
+## What I Learned
+
+- A process being alive is not the same as the full service being ready.
+- systemd failures are faster to diagnose when unit files, environment files, working directories, and `ExecStart` are checked separately.
+- Running a Flask app behind Gunicorn changes the operational model from script execution to service supervision.
+- PostgreSQL access control depends on the combined tuple of source address, database, role, and authentication method.
+- A backup is only operationally useful after a restore path has been tested.
+
+## Next Improvements
+
+- Add a systemd timer for scheduled database backups.
+- Add log rotation for nginx and application logs.
+- Add monitoring for service state, HTTP readiness, and database availability.
+- Add TLS termination at the reverse proxy.
+- Add CI/CD for static checks and deployment.
+- Automate provisioning with scripts or configuration management.

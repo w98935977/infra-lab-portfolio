@@ -1,0 +1,69 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import ProjectCard from "@components/ProjectCard.astro";
+import { getCollection } from "astro:content";
+
+const projects = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout
+  title="Infra Lab Portfolio"
+  description="Infra / Linux / DevOps lab portfolio focused on production-like troubleshooting, service lifecycle, and operational validation."
+>
+  <section class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+    <div>
+      <p class="font-mono text-sm uppercase tracking-wider text-sky-300">Infra / Linux / DevOps</p>
+      <h1 class="mt-4 max-w-3xl text-4xl font-semibold leading-tight text-white md:text-6xl">
+        Production-like lab work, documented as engineering case studies.
+      </h1>
+      <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+        Infra / Linux / DevOps lab portfolio focused on production-like troubleshooting, service lifecycle, and operational validation.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a class="rounded bg-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-sky-300" href="/projects">
+          Browse projects
+        </a>
+        <a class="rounded border border-line px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-panel" href="/projects/three-tier-linux-lab">
+          Open first lab
+        </a>
+      </div>
+    </div>
+    <aside class="rounded-lg border border-line bg-panel/80 p-5">
+      <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">Portfolio focus</h2>
+      <dl class="mt-5 grid gap-4">
+        <div>
+          <dt class="font-semibold text-white">Service lifecycle</dt>
+          <dd class="mt-1 text-sm leading-6 text-slate-300">systemd units, restricted service accounts, environment files, process validation.</dd>
+        </div>
+        <div>
+          <dt class="font-semibold text-white">Operational validation</dt>
+          <dd class="mt-1 text-sm leading-6 text-slate-300">health checks, readiness checks, database connectivity, backup and restore proof.</dd>
+        </div>
+        <div>
+          <dt class="font-semibold text-white">Troubleshooting</dt>
+          <dd class="mt-1 text-sm leading-6 text-slate-300">documented failures, root causes, and corrective changes.</dd>
+        </div>
+      </dl>
+    </aside>
+  </section>
+
+  <section class="mt-14">
+    <div class="mb-5 flex items-end justify-between gap-4">
+      <div>
+        <h2 class="text-2xl font-semibold text-white">Featured project</h2>
+        <p class="mt-2 text-sm text-slate-400">A detailed Linux service and database lab.</p>
+      </div>
+      <a class="text-sm font-semibold text-sky-300 hover:text-sky-200" href="/projects">All projects</a>
+    </div>
+    {projects.slice(0, 1).map((project) => (
+      <ProjectCard
+        href={`/projects/${project.slug}`}
+        title={project.data.title}
+        subtitle={project.data.subtitle}
+        summary={project.data.summary}
+        stack={project.data.stack}
+        status={project.data.status}
+      />
+    ))}
+  </section>
+</BaseLayout>
