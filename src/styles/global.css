@@ -79,6 +79,8 @@ html[data-language="zh"] [data-lang-content="en"] {
 
 .article-content h2 {
   margin-top: 3.5rem;
+  border-top: 1px solid #e6e6e6;
+  padding-top: 2.25rem;
   color: #242424;
   font-size: 1.85rem;
   font-weight: 700;
@@ -86,7 +88,21 @@ html[data-language="zh"] [data-lang-content="en"] {
 }
 
 .article-content h2 + * {
-  margin-top: 1rem;
+  margin-top: 1.2rem;
+}
+
+.article-content h3 {
+  margin-top: 2.6rem;
+  border-left: 4px solid #1a8917;
+  padding-left: 0.85rem;
+  color: #242424;
+  font-size: 1.28rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.article-content h3 + * {
+  margin-top: 0.85rem;
 }
 
 .article-content p,
