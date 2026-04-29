@@ -12,39 +12,68 @@ const projects = (await getCollection("projects")).sort((a, b) => a.data.order -
 >
   <section class="grid gap-12 border-b border-line pb-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
     <div>
-      <p class="font-mono text-sm uppercase tracking-wider text-signal">Infrastructure / Linux Systems</p>
+      <p class="font-mono text-sm uppercase tracking-wider text-signal">
+        <span data-lang-content="en">Infrastructure / Linux Systems</span>
+        <span data-lang-content="zh">基礎設施 / Linux 系統</span>
+      </p>
       <h1 class="mt-5 max-w-3xl text-4xl font-semibold leading-tight text-ink md:text-6xl">
-        Real Linux infrastructure labs, written like engineering case studies.
+        <span data-lang-content="en">Real Linux infrastructure labs, written like engineering case studies.</span>
+        <span data-lang-content="zh">把真實 Linux 基礎設施 lab，整理成工程案例研究。</span>
       </h1>
       <p class="mt-7 max-w-2xl text-xl leading-9 text-neutral-700">
-        This site documents hands-on systems work: Linux services, reverse proxies, databases, access control, health checks, backup validation, and the troubleshooting path behind each result.
+        <span data-lang-content="en">This site documents hands-on systems work: Linux services, reverse proxies, databases, access control, health checks, backup validation, and the troubleshooting path behind each result.</span>
+        <span data-lang-content="zh">這個網站記錄實作型系統工程內容：Linux service、reverse proxy、資料庫、存取控制、health check、備份驗證，以及每個結果背後的 troubleshooting 過程。</span>
       </p>
       <p class="mt-5 max-w-2xl text-base leading-7 text-neutral-600">
-        It is designed for interview review and portfolio screening, not generic blog posts.
+        <span data-lang-content="en">It is designed for interview review and portfolio screening, not generic blog posts.</span>
+        <span data-lang-content="zh">它的用途是面試前複習與作品集審閱，不是一般部落格文章。</span>
       </p>
       <div class="mt-9 flex flex-wrap gap-3">
         <a class="rounded-full bg-signal px-4 py-2 text-sm font-semibold text-white hover:bg-green-700" href="/projects">
-          Browse projects
+          <span data-lang-content="en">Browse projects</span>
+          <span data-lang-content="zh">瀏覽專案</span>
         </a>
         <a class="rounded-full border border-neutral-300 px-4 py-2 text-sm font-semibold text-ink hover:border-neutral-500" href="/projects/three-tier-linux-lab">
-          Open first lab
+          <span data-lang-content="en">Open first lab</span>
+          <span data-lang-content="zh">查看第一個 lab</span>
         </a>
       </div>
     </div>
     <aside class="rounded-lg border border-line bg-white p-6">
-      <h2 class="text-sm font-semibold uppercase tracking-wider text-neutral-500">What the site shows</h2>
+      <h2 class="text-sm font-semibold uppercase tracking-wider text-neutral-500">
+        <span data-lang-content="en">What the site shows</span>
+        <span data-lang-content="zh">網站呈現重點</span>
+      </h2>
       <dl class="mt-5 grid gap-4">
         <div>
-          <dt class="font-semibold text-ink">Service lifecycle</dt>
-          <dd class="mt-1 text-sm leading-6 text-neutral-600">systemd units, restricted service accounts, environment files, process validation.</dd>
+          <dt class="font-semibold text-ink">
+            <span data-lang-content="en">Service lifecycle</span>
+            <span data-lang-content="zh">服務生命週期</span>
+          </dt>
+          <dd class="mt-1 text-sm leading-6 text-neutral-600">
+            <span data-lang-content="en">systemd units, restricted service accounts, environment files, process validation.</span>
+            <span data-lang-content="zh">systemd unit、受限 service account、環境變數檔、process validation。</span>
+          </dd>
         </div>
         <div>
-          <dt class="font-semibold text-ink">Operational validation</dt>
-          <dd class="mt-1 text-sm leading-6 text-neutral-600">health checks, readiness checks, database connectivity, backup and restore proof.</dd>
+          <dt class="font-semibold text-ink">
+            <span data-lang-content="en">Operational validation</span>
+            <span data-lang-content="zh">操作驗證</span>
+          </dt>
+          <dd class="mt-1 text-sm leading-6 text-neutral-600">
+            <span data-lang-content="en">health checks, readiness checks, database connectivity, backup and restore proof.</span>
+            <span data-lang-content="zh">health check、readiness check、資料庫連線、備份與還原驗證。</span>
+          </dd>
         </div>
         <div>
-          <dt class="font-semibold text-ink">Troubleshooting</dt>
-          <dd class="mt-1 text-sm leading-6 text-neutral-600">documented failures, root causes, and corrective changes.</dd>
+          <dt class="font-semibold text-ink">
+            <span data-lang-content="en">Troubleshooting</span>
+            <span data-lang-content="zh">故障排除</span>
+          </dt>
+          <dd class="mt-1 text-sm leading-6 text-neutral-600">
+            <span data-lang-content="en">documented failures, root causes, and corrective changes.</span>
+            <span data-lang-content="zh">記錄失敗現象、根因，以及實際修正方式。</span>
+          </dd>
         </div>
       </dl>
     </aside>
@@ -53,19 +82,32 @@ const projects = (await getCollection("projects")).sort((a, b) => a.data.order -
   <section class="mt-14">
     <div class="mb-5 flex items-end justify-between gap-4">
       <div>
-        <h2 class="text-2xl font-semibold text-ink">Featured project</h2>
-        <p class="mt-2 text-sm text-neutral-600">A detailed Linux service and database lab.</p>
+        <h2 class="text-2xl font-semibold text-ink">
+          <span data-lang-content="en">Featured project</span>
+          <span data-lang-content="zh">精選專案</span>
+        </h2>
+        <p class="mt-2 text-sm text-neutral-600">
+          <span data-lang-content="en">A detailed Linux service and database lab.</span>
+          <span data-lang-content="zh">一個完整的 Linux service 與資料庫 lab。</span>
+        </p>
       </div>
-      <a class="text-sm font-semibold text-signal hover:text-green-700" href="/projects">All projects</a>
+      <a class="text-sm font-semibold text-signal hover:text-green-700" href="/projects">
+        <span data-lang-content="en">All projects</span>
+        <span data-lang-content="zh">所有專案</span>
+      </a>
     </div>
     {projects.slice(0, 1).map((project) => (
       <ProjectCard
         href={`/projects/${project.slug}`}
         title={project.data.title}
+        titleZh={project.data.titleZh}
         subtitle={project.data.subtitle}
+        subtitleZh={project.data.subtitleZh}
         summary={project.data.summary}
+        summaryZh={project.data.summaryZh}
         stack={project.data.stack}
         status={project.data.status}
+        statusZh={project.data.statusZh}
       />
     ))}
   </section>

@@ -1,7 +1,10 @@
 ---
 title: "Production-like Three-Tier Linux Lab"
+titleZh: "接近正式環境的三層 Linux Lab"
 subtitle: "Reverse Proxy + systemd-managed Gunicorn App + PostgreSQL with Health Checks and Backup/Restore Validation"
+subtitleZh: "Reverse Proxy + systemd 管理的 Gunicorn App + PostgreSQL，包含 Health Check 與備份還原驗證"
 summary: "A Linux infrastructure lab that migrates a containerized Flask/PostgreSQL app into a VM-style service model with nginx, systemd, Gunicorn, PostgreSQL access control, health checks, and restore validation."
+summaryZh: "一個 Linux 基礎設施 lab：把原本 containerized 的 Flask/PostgreSQL app 遷移成 VM 風格的服務模型，涵蓋 nginx、systemd、Gunicorn、PostgreSQL 存取控制、health check 與還原驗證。"
 stack:
   - nginx
   - systemd
@@ -11,10 +14,13 @@ stack:
   - Linux
   - Mermaid
 status: "Case study"
+statusZh: "案例研究"
 order: 1
 ---
 
 import Mermaid from "@components/Mermaid.astro";
+
+<section data-lang-content="en">
 
 ## Overview
 
@@ -222,3 +228,216 @@ psql -h db-server -U labuser -d labdb_restore -c "select count(*) from notes;"
 - Add TLS termination at the reverse proxy.
 - Add CI/CD for static checks and deployment.
 - Automate provisioning with scripts or configuration management.
+
+</section>
+
+<section data-lang-content="zh">
+
+## 概覽
+
+這個 lab 記錄一個接近正式環境的三層 Linux 部署：
+
+- reverse-proxy server 使用 nginx 在 port 80 接收 HTTP 流量。
+- app-server 透過 Gunicorn 執行 Flask application。
+- systemd 以一般 Linux service 的方式管理 `lab-app.service`。
+- application 連到獨立 db-server 上的 PostgreSQL 16。
+- health check 用來驗證 process liveness、service readiness 與 database access。
+- backup / restore validation 用來證明資料庫可以被還原並重新查詢。
+
+這個 application 一開始是用 Docker Compose containerized。後來刻意遷移成 systemd-managed Gunicorn deployment，用來練習 Linux service lifecycle、process ownership、environment management，以及跨主機的 database access。
+
+## 架構
+
+<Mermaid chart={`flowchart TD
+  client["Client / Host"]
+  proxy["reverse-proxy server<br/>nginx :80"]
+  pass["proxy_pass<br/>http://app-server:8000"]
+  service["app-server<br/>systemd lab-app.service"]
+  gunicorn["gunicorn :8000"]
+  flask["Flask app"]
+  db["db-server<br/>PostgreSQL 16"]
+  schema["labdb / labuser<br/>notes table"]
+
+  client --> proxy
+  proxy --> pass
+  pass --> service
+  service --> gunicorn
+  gunicorn --> flask
+  flask --> db
+  db --> schema
+`} />
+
+## Service Model
+
+這個 app 改由 systemd 管理，而不是 Docker Compose。這讓部署方式更接近 VM 或 bare-metal Linux host 上常見的 service operation。
+
+主要邊界：
+
+- `lab-app.service` 負責 process lifecycle。
+- `appuser` 是 application 使用的受限 Linux account。
+- `/etc/lab-app.env` 存放 runtime configuration。
+- `labuser` 是 application 使用的 PostgreSQL role。
+- `pg_hba.conf` 依照 source IP、database、user 與 authentication method 控制 database access。
+
+## 重要 Endpoints
+
+| Endpoint | 用途 |
+| --- | --- |
+| `/health` | 確認 app process 還活著。 |
+| `/ready` | 確認 app 與 database dependency 都 ready。 |
+| `/db` | 驗證 PostgreSQL connectivity，並回傳 database version。 |
+| `/notes` | 從 `notes` table 讀取真實資料。 |
+
+## systemd Unit
+
+遷移過程中的關鍵修正，是把直接執行 `python app.py` 改成用 Gunicorn 啟動 Flask app。
+
+```ini
+[Unit]
+Description=Lab Flask app served by Gunicorn
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=appuser
+Group=appuser
+WorkingDirectory=/opt/lab-app
+EnvironmentFile=/etc/lab-app.env
+ExecStart=/opt/lab-app/venv/bin/gunicorn --bind 0.0.0.0:8000 app:app
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+常用 service commands：
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now lab-app.service
+sudo systemctl status lab-app.service
+sudo journalctl -u lab-app.service -n 80 --no-pager
+```
+
+## nginx Reverse Proxy
+
+reverse proxy 對外提供 port 80，並把 application traffic forward 到 app-server 的 port 8000。
+
+```nginx
+server {
+    listen 80;
+    server_name _;
+
+    access_log /var/log/nginx/lab-app.access.log;
+    error_log /var/log/nginx/lab-app.error.log;
+
+    location / {
+        proxy_pass http://app-server:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+驗證命令：
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+curl -i http://reverse-proxy/health
+curl -i http://reverse-proxy/ready
+curl -i http://reverse-proxy/db
+curl -i http://reverse-proxy/notes
+```
+
+## PostgreSQL Access Control
+
+app 使用獨立 database role 與 database，而不是用 superuser 連線。
+
+```sql
+CREATE ROLE labuser LOGIN PASSWORD 'replace-with-secret';
+CREATE DATABASE labdb OWNER labuser;
+\c labdb
+CREATE TABLE notes (
+    id bigserial PRIMARY KEY,
+    body text NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE notes OWNER TO labuser;
+GRANT ALL PRIVILEGES ON TABLE notes TO labuser;
+```
+
+範例 `pg_hba.conf` entry：
+
+```text
+# TYPE  DATABASE  USER     ADDRESS          METHOD
+host    labdb     labuser  10.10.20.11/32   scram-sha-256
+```
+
+修改 PostgreSQL access rule 後：
+
+```bash
+sudo systemctl reload postgresql
+psql "host=db-server dbname=labdb user=labuser password=replace-with-secret" -c "select version();"
+```
+
+## Runtime Environment
+
+app 從 `/etc/lab-app.env` 讀取 connection settings。這個檔案應該只讓 root 與 service process 讀取，而且不應該 commit 到 git。
+
+```bash
+FLASK_ENV=production
+DB_HOST=db-server
+DB_PORT=5432
+DB_NAME=labdb
+DB_USER=labuser
+DB_PASSWORD=replace-with-secret
+```
+
+## Backup and Restore Validation
+
+這個 lab 把 backup 視為未完成，直到 restore 被實際測試，而且 application 能查詢還原後的資料。
+
+```bash
+pg_dump -h db-server -U labuser -d labdb -Fc -f labdb.dump
+createdb -h db-server -U labuser labdb_restore
+pg_restore -h db-server -U labuser -d labdb_restore labdb.dump
+psql -h db-server -U labuser -d labdb_restore -c "select count(*) from notes;"
+```
+
+## Troubleshooting Timeline
+
+| 現象 | 根因 | 修正 |
+| --- | --- | --- |
+| `Unit lab-app.service could not be found` | unit file 沒有放在 systemd search path，或 daemon cache 還沒更新。 | 把 unit 放到 `/etc/systemd/system/`，並執行 `systemctl daemon-reload`。 |
+| service 因為 env file missing 而失敗 | app-server 上不存在 `/etc/lab-app.env`。 | 建立 env file，放入 database connection settings，並限制權限。 |
+| `app.py` 正常結束 | script 定義了 Flask app，但沒有直接啟動 production web server。 | 把 `ExecStart` 從 `python app.py` 改成 `gunicorn app:app`。 |
+| PostgreSQL 拒絕連線 | `pg_hba.conf` 沒有允許 app-server 的 source IP、database 與 user。 | 加上明確的 `host labdb labuser ... scram-sha-256` 規則並 reload PostgreSQL。 |
+| database 或 role 不存在 | app 預期有 `labdb` 與 `labuser`，但 PostgreSQL 尚未建立。 | 明確建立 role 與 database。 |
+| notes query 失敗 | table ownership 或 grants 不允許 `labuser` 讀取 table。 | 修正 `notes` table ownership 與 privileges。 |
+| reverse-proxy 回傳錯誤 | nginx config 需要對 upstream app-server 與 port 做驗證。 | 測試 `nginx -t`、reload nginx，並透過 `/health`、`/ready`、`/db`、`/notes` 驗證。 |
+
+## 我學到的事
+
+- process alive 不等於整個 service ready。
+- 排查 systemd 問題時，unit file、environment file、working directory 與 `ExecStart` 應該分開檢查。
+- Flask app 放到 Gunicorn 後，操作模型會從 script execution 變成 service supervision。
+- PostgreSQL access control 取決於 source address、database、role 與 authentication method 的組合。
+- backup 只有在 restore path 被測試後，才算真的具有操作價值。
+
+## 下一步改進
+
+- 加上 systemd timer 來排程 database backup。
+- 加上 nginx 與 application logs 的 log rotation。
+- 加上 service state、HTTP readiness 與 database availability monitoring。
+- 在 reverse proxy 加上 TLS termination。
+- 加上 CI/CD 做 static checks 與 deployment。
+- 用 scripts 或 configuration management 自動化 provisioning。
+
+</section>

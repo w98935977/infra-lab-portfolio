@@ -8,10 +8,17 @@ const projects = (await getCollection("projects")).sort((a, b) => a.data.order -
 
 <BaseLayout title="Projects | Infra Lab Portfolio">
   <section>
-    <p class="font-mono text-sm uppercase tracking-wider text-signal">Projects</p>
-    <h1 class="mt-4 text-4xl font-semibold text-ink">Infrastructure lab case studies</h1>
+    <p class="font-mono text-sm uppercase tracking-wider text-signal">
+      <span data-lang-content="en">Projects</span>
+      <span data-lang-content="zh">專案</span>
+    </p>
+    <h1 class="mt-4 text-4xl font-semibold text-ink">
+      <span data-lang-content="en">Infrastructure lab case studies</span>
+      <span data-lang-content="zh">基礎設施 Lab 案例研究</span>
+    </h1>
     <p class="mt-5 max-w-3xl text-lg leading-8 text-neutral-700">
-      Each project documents architecture, validation commands, failure modes, and the operational lessons behind the implementation.
+      <span data-lang-content="en">Each project documents architecture, validation commands, failure modes, and the operational lessons behind the implementation.</span>
+      <span data-lang-content="zh">每個專案都會記錄架構、驗證命令、失敗模式，以及實作背後的操作經驗。</span>
     </p>
   </section>
 
@@ -20,10 +27,14 @@ const projects = (await getCollection("projects")).sort((a, b) => a.data.order -
       <ProjectCard
         href={`/projects/${project.slug}`}
         title={project.data.title}
+        titleZh={project.data.titleZh}
         subtitle={project.data.subtitle}
+        subtitleZh={project.data.subtitleZh}
         summary={project.data.summary}
+        summaryZh={project.data.summaryZh}
         stack={project.data.stack}
         status={project.data.status}
+        statusZh={project.data.statusZh}
       />
     ))}
   </section>

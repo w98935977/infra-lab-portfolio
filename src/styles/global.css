@@ -33,6 +33,11 @@ code {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+html[data-language="en"] [data-lang-content="zh"],
+html[data-language="zh"] [data-lang-content="en"] {
+  display: none !important;
+}
+
 .mermaid {
   display: flex;
   justify-content: center;
