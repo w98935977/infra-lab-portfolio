@@ -15,19 +15,19 @@ const { Content } = await render(project);
 ---
 
 <BaseLayout title={`${project.data.title} | Infra Lab Portfolio`} description={project.data.summary}>
-  <article class="mx-auto max-w-4xl">
-    <header class="border-b border-line pb-8">
-      <a class="text-sm font-semibold text-sky-300 hover:text-sky-200" href="/projects">Back to projects</a>
-      <p class="mt-6 font-mono text-sm uppercase tracking-wider text-slate-400">{project.data.status}</p>
-      <h1 class="mt-3 text-4xl font-semibold leading-tight text-white md:text-5xl">{project.data.title}</h1>
-      <p class="mt-4 text-lg leading-8 text-slate-300">{project.data.subtitle}</p>
+  <article class="mx-auto max-w-3xl">
+    <header class="border-b border-line pb-10">
+      <a class="text-sm font-semibold text-blue-700 hover:text-blue-900" href="/projects">Back to projects</a>
+      <p class="mt-8 font-mono text-sm uppercase tracking-wider text-slate-500">{project.data.status}</p>
+      <h1 class="mt-4 text-4xl font-semibold leading-tight text-slate-950 md:text-6xl">{project.data.title}</h1>
+      <p class="mt-6 text-xl leading-9 text-slate-700">{project.data.subtitle}</p>
       <div class="mt-6 flex flex-wrap gap-2">
         {project.data.stack.map((item: string) => (
-          <span class="rounded bg-slate-800 px-2.5 py-1 text-xs text-slate-300">{item}</span>
+          <span class="rounded bg-slate-100 px-2.5 py-1 text-xs text-slate-700">{item}</span>
         ))}
       </div>
     </header>
-    <div class="prose prose-invert mt-8 max-w-none prose-headings:text-white prose-a:text-sky-300 prose-code:text-sky-100 prose-strong:text-white prose-li:marker:text-sky-300">
+    <div class="article-content mt-10">
       <Content />
     </div>
   </article>

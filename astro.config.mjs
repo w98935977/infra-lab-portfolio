@@ -6,7 +6,7 @@ export default defineConfig({
   integrations: [mdx(), tailwind()],
   markdown: {
     shikiConfig: {
-      theme: "github-dark",
+      theme: "github-light",
       wrap: true
     }
   }

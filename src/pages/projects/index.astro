@@ -8,14 +8,14 @@ const projects = (await getCollection("projects")).sort((a, b) => a.data.order -
 
 <BaseLayout title="Projects | Infra Lab Portfolio">
   <section>
-    <p class="font-mono text-sm uppercase tracking-wider text-sky-300">Projects</p>
-    <h1 class="mt-4 text-4xl font-semibold text-white">Infrastructure lab case studies</h1>
-    <p class="mt-4 max-w-3xl leading-7 text-slate-300">
+    <p class="font-mono text-sm uppercase tracking-wider text-blue-700">Projects</p>
+    <h1 class="mt-4 text-4xl font-semibold text-slate-950">Infrastructure lab case studies</h1>
+    <p class="mt-5 max-w-3xl text-lg leading-8 text-slate-700">
       Each project documents architecture, validation commands, failure modes, and the operational lessons behind the implementation.
     </p>
   </section>
 
-  <section class="mt-8 grid gap-5">
+  <section class="mt-10 grid gap-6">
     {projects.map((project) => (
       <ProjectCard
         href={`/projects/${project.slug}`}

@@ -5,9 +5,9 @@ export default {
     extend: {
       colors: {
         ink: "#111827",
-        panel: "#172033",
-        line: "#314158",
-        signal: "#38bdf8"
+        panel: "#ffffff",
+        line: "#e5e7eb",
+        signal: "#2563eb"
       },
       fontFamily: {
         sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
